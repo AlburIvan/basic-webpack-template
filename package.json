@@ -1,0 +1,35 @@
+{
+  "name": "mpa-webpack-template",
+  "version": "1.0.0",
+  "description": "This is a webpack template to handle Multi pages web apps, this should ease the pain when working with bundling assets & caching files",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack-dev-server --config webpack.dev.js --mode development",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlburIvan/basic-webpack-template.git"
+  },
+  "keywords": [
+    "webpack",
+    "template",
+    "javascript",
+    "js",
+    "multipage",
+    "app",
+    "application"
+  ],
+  "author": "Ivan Alburquerque",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AlburIvan/basic-webpack-template/issues"
+  },
+  "homepage": "https://github.com/AlburIvan/basic-webpack-template#readme",
+  "devDependencies": {
+    "html-webpack-plugin": "^3.2.0",
+    "webpack": "^4.25.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.10"
+  }
+}
