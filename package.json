@@ -4,7 +4,7 @@
   "description": "This is a webpack template to handle Multi pages web apps, this should ease the pain when working with bundling assets & caching files",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --config webpack.dev.js --mode development",
+    "start": "webpack-dev-server --hot --inline --config webpack.dev.js --mode development",
     "test": "test"
   },
   "repository": {
@@ -26,8 +26,18 @@
     "url": "https://github.com/AlburIvan/basic-webpack-template/issues"
   },
   "homepage": "https://github.com/AlburIvan/basic-webpack-template#readme",
+  "dependencies": {
+    "normalize.css": "^8.0.1"
+  },
   "devDependencies": {
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
+    "babel-loader": "^8.0.4",
+    "css-loader": "^1.0.1",
     "html-webpack-plugin": "^3.2.0",
+    "node-sass": "^4.10.0",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
     "webpack": "^4.25.1",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.10"
