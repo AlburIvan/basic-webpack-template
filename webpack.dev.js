@@ -1,16 +1,14 @@
 
-/**
- * to access built-in plugin.
- * https://webpack.js.org/concepts/#plugins
- */
+/** to access built-in plugin. - https://webpack.js.org/concepts/#plugins */
 const webpack = require('webpack');
 
-/** 
- * Simplifies creation of HTML files to serve your webpack bundles.
- * https://github.com/jantimon/html-webpack-plugin
- */
+/** Simplifies creation of HTML files to serve your webpack bundles. - https://github.com/jantimon/html-webpack-plugin */
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const read = require('fs-readdir-recursive')
+const path = require('path')
+
+let pages = read(path.join(__dirname, 'views'));
 
 module.exports = {
 
@@ -29,7 +27,8 @@ module.exports = {
     hot: true,
     historyApiFallback: {
       rewrites: [
-        { from: /./, to: 'views/errors/404.html' }
+        { from: /(.*$)/,  to: (context) => `${context.parsedUrl.pathname}.html` },
+        { from: /./, to: 'views/errors/404.html' } 
       ]
     }
   },
@@ -48,30 +47,44 @@ module.exports = {
       { 
         test: /\.js$/, 
         exclude: /node_modules/,
-        use: ['babel-loader'] // transpile ECMA6 code to vanilla JS with babel
+        use: ['babel-loader']
       }
     ]
   },
 
   // Here be plugins
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: './views/index.html',
-      inject: true,
-      chunks: ['index'],
-      title: 'My App',
-      filename: 'index.html'
-    }),
-    new HtmlWebpackPlugin({
-      template: './views/about.html',
-      inject: true,
-      chunks: ['about'],
-      filename: 'about.html'
-    }),
+  plugins:
+    pages.map(page => {
+
+      let chunk = page.replace(/(\.\w+)/g, '');
+
+      let plugin = new HtmlWebpackPlugin({
+        template: `./views/${page}`,
+        inject: true,
+        chunks: [`${chunk}`],
+        filename: `${page}`
+      })
+
+      return plugin;
+    }).concat([
+    // new HtmlWebpackPlugin({
+    //   template: './views/index.html',
+    //   inject: true,
+    //   chunks: ['index'],
+    //   title: 'Page :: Index',
+    //   filename: 'index.html'
+    // }),
+    // new HtmlWebpackPlugin({
+    //   template: './views/about.html',
+    //   inject: true,
+    //   chunks: ['about'],
+    //   title: 'Page :: About',
+    //   filename: 'about.html'
+    // }),
     new webpack.DefinePlugin({
       NODE_ENV: JSON.stringify("development"),
       PRODUCTION: JSON.stringify(false),
       VERSION: JSON.stringify('5fa3b9'),
     })
-  ]
+  ])
 }
