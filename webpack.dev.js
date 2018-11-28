@@ -9,16 +9,21 @@ const read = require('fs-readdir-recursive')
 const path = require('path')
 
 let pages = read(path.join(__dirname, 'views'));
+let jsEntries = read(path.join(__dirname, 'src'))
+
+let entries = {}
+
+jsEntries.forEach(entry => {
+  let js = entry.replace(/(\.\w+)/g, '');
+  entries[js] = `./src/${entry}`;;
+})
 
 module.exports = {
 
   mode: 'development',
 
   // entry point for webpack to begin compiling
-  entry: {
-    index: './src/index.js',
-    about: './src/about.js'
-  },
+  entry: entries,
 
   // dev Server setup
   devServer: {
@@ -27,7 +32,7 @@ module.exports = {
     hot: true,
     historyApiFallback: {
       rewrites: [
-        { from: /(.*$)/,  to: (context) => `${context.parsedUrl.pathname}.html` },
+        // { from: /(.*$)/,  to: (context) => `${context.parsedUrl.pathname}.html` },
         { from: /./, to: 'views/errors/404.html' } 
       ]
     }
@@ -61,7 +66,7 @@ module.exports = {
       let plugin = new HtmlWebpackPlugin({
         template: `./views/${page}`,
         inject: true,
-        chunks: [`${chunk}`],
+        chunks: ['app', `${chunk}`],
         filename: `${page}`
       })
 
@@ -86,5 +91,7 @@ module.exports = {
       PRODUCTION: JSON.stringify(false),
       VERSION: JSON.stringify('5fa3b9'),
     })
-  ])
+  ]),
+
+
 }

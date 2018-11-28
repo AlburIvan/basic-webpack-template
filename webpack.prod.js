@@ -1,4 +1,5 @@
 const path = require('path');
+const read = require('fs-readdir-recursive')
 
 /** to access built-in plugin. - https://webpack.js.org/concepts/#plugins */
 const webpack = require('webpack');
@@ -19,14 +20,28 @@ const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 /** This is a simple plugin that uses Imagemin to compress all images in your project. - https://github.com/Klathmon/imagemin-webpack-plugin */
-const ImageminPlugin = require('imagemin-webpack-plugin');
+const ImageminPlugin = require('imagemin-webpack-plugin').default;
 
-
+/**  */
 const buildPath = path.resolve(__dirname, 'dist');
+
+/**  */
+let pages = read(path.join(__dirname, 'views'));
+
+/**  */
+let jsEntries = read(path.join(__dirname, 'src'))
+
+let entries = {}
+
+jsEntries.forEach(entry => {
+  let js = entry.replace(/(\.\w+)/g, '');
+  entries[js] = `./src/${entry}`;;
+})
+
 
 module.exports = {
 
-  mode: 'development',
+  mode: 'production',
 
   // This option controls if and how source maps files are generated.
   // https://webpack.js.org/configuration/devtool/
@@ -34,10 +49,7 @@ module.exports = {
 
   // entry point for webpack to begin compiling
   // https://webpack.js.org/concepts/entry-points/#multi-page-application
-  entry: {
-    index: './src/index.js',
-    about: './src/about.js'
-  },
+  entry: entries,
 
   // how to write the compiled files to disk
   // https://webpack.js.org/concepts/output/
@@ -49,12 +61,12 @@ module.exports = {
   // Here be loaders
   module: {
     rules: [
-      { 
-        test: /\.css|scss$/, 
-        use: [ MiniCssExtractPlugin.loader, "css-loader", "sass-loader"]
+      {
+        test: /\.css|scss$/,
+        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"]
       },
-      { 
-        test: /\.js$/, 
+      {
+        test: /\.js$/,
         exclude: /node_modules/,
         use: ['babel-loader']
       }
@@ -64,46 +76,51 @@ module.exports = {
   // Here be plugins
   plugins: [
     new CleanWebpackPlugin(buildPath),
-    new HtmlWebpackPlugin({
-      template: './views/index.html',
-      inject: true,
-      chunks: ['index'],
-      title: 'Page :: Index',
-      filename: 'index.html'
-    }),
-    new HtmlWebpackPlugin({
-      template: './views/about.html',
-      inject: true,
-      chunks: ['about'],
-      title: 'Page :: About',
-      filename: 'about.html'
-    }),
-    new MiniCssExtractPlugin({
-      filename: '[name].[contenthash].css',
-      chunkFilename: '[id].[contenthash].css'
-    }),
-    new ImageminPlugin({ 
-      test: /\.(jpe?g|png|gif|svg)$/i,
-      optipng: {
-        optimizationLevel: 9
-      }
-    }),
-    new webpack.DefinePlugin({
-      NODE_ENV: JSON.stringify("development"),
-      PRODUCTION: JSON.stringify(false),
-      VERSION: JSON.stringify('5fa3b9'),
-    })
+    pages.map(page => {
+
+      let chunk = page.replace(/(\.\w+)/g, '');
+
+      let plugin = new HtmlWebpackPlugin({
+        template: `./views/${page}`,
+        inject: true,
+        chunks: ['app', `${chunk}`],
+        filename: `${page}`
+      })
+
+      return plugin;
+    }).join(','),
+    // .concat([
+      new ImageminPlugin({
+        test: /\.(jpe?g|png|gif|svg)$/i,
+        optipng: {
+          optimizationLevel: 9
+        }
+      }),
+      new webpack.DefinePlugin({
+        NODE_ENV: JSON.stringify("development"),
+        PRODUCTION: JSON.stringify(false),
+        VERSION: JSON.stringify('5fa3b9'),
+      })
+    // ])
   ],
 
   // https://webpack.js.org/configuration/optimization/
   optimization: {
     minimizer: [
-        new UglifyJsPlugin({
-            cache: true,
-            parallel: true,
-            sourceMap: true
-        }),
-        new OptimizeCssAssetsPlugin({})
-    ]
+      new UglifyJsPlugin({
+        cache: true,
+        parallel: true,
+        sourceMap: true
+      }),
+      new OptimizeCssAssetsPlugin({})
+    ],
+    splitChunks: {
+      chunks: 'async',
+      minSize: 30000,
+      maxSize: 0,
+      minChunks: 1,
+      maxAsyncRequests: 5,
+      maxInitialRequests: 3,
+    }
   }
 }
