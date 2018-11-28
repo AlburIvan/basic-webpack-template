@@ -1,3 +1,5 @@
+const read = require('fs-readdir-recursive')
+const path = require('path')
 
 /** to access built-in plugin. - https://webpack.js.org/concepts/#plugins */
 const webpack = require('webpack');
@@ -5,8 +7,6 @@ const webpack = require('webpack');
 /** Simplifies creation of HTML files to serve your webpack bundles. - https://github.com/jantimon/html-webpack-plugin */
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const read = require('fs-readdir-recursive')
-const path = require('path')
 
 let pages = read(path.join(__dirname, 'views'));
 let jsEntries = read(path.join(__dirname, 'src'))
@@ -30,6 +30,8 @@ module.exports = {
     port: 9000,
     compress: true,
     hot: true,
+    contentBase: path.join(__dirname, 'views'),
+    watchContentBase: true,
     historyApiFallback: {
       rewrites: [
         // { from: /(.*$)/,  to: (context) => `${context.parsedUrl.pathname}.html` },
