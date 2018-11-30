@@ -29,14 +29,22 @@ module.exports = {
   devServer: {
     port: 9000,
     compress: true,
-    hot: true,
-    contentBase: path.join(__dirname, 'views'),
+
+    // The local filesystem directory where static html files
+    // should be placed to enjoy 'live-reloading'
+    contentBase: path.resolve(__dirname, "views"),
+
+    // 'Live-reloading' happens when you make changes to code
+    // dependency pointed to by the 'entry' parameter.
+    // To make live-reloading happen even when changes are made
+    // to the static html pages in 'contentBase', add 
+    // 'watchContentBase'
     watchContentBase: true,
-    historyApiFallback: {
-      rewrites: [
-        // { from: /(.*$)/,  to: (context) => `${context.parsedUrl.pathname}.html` },
-        { from: /./, to: 'views/errors/404.html' } 
-      ]
+
+    // Control options related to watching the files.
+    watchOptions: {
+      aggregateTimeout: 300,
+      poll: true
     }
   },
 
