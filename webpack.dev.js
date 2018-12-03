@@ -7,6 +7,8 @@ const webpack = require('webpack');
 /** Simplifies creation of HTML files to serve your webpack bundles. - https://github.com/jantimon/html-webpack-plugin */
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const IOWatcherPlugin = require('./plugins/IOWatcherPlugin.js')
+
 
 let pages = read(path.join(__dirname, 'views'));
 let jsEntries = read(path.join(__dirname, 'src'))
@@ -16,7 +18,8 @@ let entries = {}
 jsEntries.forEach(entry => {
   let js = entry.replace(/(\.\w+)/g, '');
   entries[js] = `./src/${entry}`;;
-})
+});
+
 
 module.exports = {
 
@@ -68,6 +71,7 @@ module.exports = {
   },
 
   // Here be plugins
+  // https://webpack.js.org/concepts/plugins/
   plugins:
     pages.map(page => {
 
@@ -82,22 +86,9 @@ module.exports = {
 
       return plugin;
     }).concat([
-    // new HtmlWebpackPlugin({
-    //   template: './views/index.html',
-    //   inject: true,
-    //   chunks: ['index'],
-    //   title: 'Page :: Index',
-    //   filename: 'index.html'
-    // }),
-    // new HtmlWebpackPlugin({
-    //   template: './views/about.html',
-    //   inject: true,
-    //   chunks: ['about'],
-    //   title: 'Page :: About',
-    //   filename: 'about.html'
-    // }),
+    new IOWatcherPlugin({}),
     new webpack.DefinePlugin({
-      NODE_ENV: JSON.stringify("development"),
+      NODE_ENV: JSON.stringify('development'),
       PRODUCTION: JSON.stringify(false),
       VERSION: JSON.stringify('5fa3b9'),
     })

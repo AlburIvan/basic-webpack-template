@@ -3,4 +3,4 @@
 require('normalize.css/normalize.css');
 require('../sass/app.scss')
 
-console.log('app')
+console.log('App');
