@@ -7,7 +7,7 @@ const webpack = require('webpack');
 /** Simplifies creation of HTML files to serve your webpack bundles. - https://github.com/jantimon/html-webpack-plugin */
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const IOWatcherPlugin = require('./plugins/IOWatcherPlugin.js')
+const IOWatcherPlugin = require('./plugins/IOWatcherPlugin')
 
 
 let pages = read(path.join(__dirname, 'views'));
@@ -17,7 +17,7 @@ let entries = {}
 
 jsEntries.forEach(entry => {
   let js = entry.replace(/(\.\w+)/g, '');
-  entries[js] = `./src/${entry}`;;
+  entries[js] =   `./src/${entry}`;
 });
 
 
