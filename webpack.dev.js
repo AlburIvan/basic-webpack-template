@@ -50,7 +50,8 @@ module.exports = {
     // Control options related to watching the files.
     watchOptions: {
       aggregateTimeout: 300,
-      poll: true
+      poll: false,
+      ignored: /node_modules/
     }
   },
 
@@ -89,12 +90,14 @@ module.exports = {
 
       return plugin;
     }).concat([
-    // new IOWatcherPlugin({}),
-    new FileWatcherPlugin({
-      watchFileRegex: ['./views', './src'],
-      awaitWriteFinish: true,
-      ignored: '/node_modules/'
+    new IOWatcherPlugin('./views', {
+
     }),
+    // new FileWatcherPlugin({
+    //   watchFileRegex: ['./views', './src'],
+    //   awaitWriteFinish: true,
+    //   ignored: '/node_modules/'
+    // }),
     new webpack.DefinePlugin({
       NODE_ENV: JSON.stringify('development'),
       PRODUCTION: JSON.stringify(false),

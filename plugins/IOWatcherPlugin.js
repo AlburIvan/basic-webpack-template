@@ -1,9 +1,11 @@
+const chokidar = require('chokidar');
+
 class IOWatcherPlugin {
 
-    constructor() {
+    constructor(path = '', options = {}) {
         this.pluginName = 'IOWatcherPlugin'
-        this.startTime = Date.now();
-        this.prevTimestamps = {};
+        this.path = path;
+        this.options = options;
     }
 
 
@@ -14,59 +16,69 @@ class IOWatcherPlugin {
     // read at: https://github.com/webpack/webpack-dev-server/issues/1354
     apply(compiler) {
 
-        compiler.hooks.watchRun.tapAsync(this.pluginName, (compilation, callback) => {
-            console.log(this.pluginName, 'Starting hook...')
-            let compilationFileDependencies;
-            let addFileDependency;
+        let fileDependencies = []
+        let addFileDependency = void 0;
 
-            const { watchFileSystem } = compiler;
-            const watcher = watchFileSystem.watcher || watchFileSystem.wfs.watcher;
+        compiler.hooks.afterEmit.tap(this.pluginName, (compilation) => {
+            console.log('Starting [afterEmit] hook');
 
-            //   return Object.keys(watcher.mtimes);
+            let compilationFileDependencies = void 0;
 
-            console.log('watcher', watcher)
-            console.log(this.pluginName, Object.keys(watcher.fileWatchers))
+            if (Array.isArray(compilation.fileDependencies)) {
+                compilationFileDependencies = new Set(compilation.fileDependencies);
+                addFileDependency = (file) => compilation.fileDependencies.push(file);
+            } else {
+                compilationFileDependencies = compilation.fileDependencies;
+                addFileDependency = (file) => compilation.fileDependencies.add(file);
+            }
 
-            //   if (Array.isArray(compilation.fileDependencies)) {
-            //       compilationFileDependencies = new Set(compilation.fileDependencies);
-            //       addFileDependency = (file) => compilation.fileDependencies.push(file);
-            //   } else {
-            //       compilationFileDependencies = compilation.fileDependencies;
-            //       addFileDependency = (file) => compilation.fileDependencies.add(f   ile);
-            //   }
+            // Add file dependencies if they're not already tracked
+            for (const file of fileDependencies) {
+                if (compilationFileDependencies.has(file)) {
+                    console.log(`not adding ${file} to change tracking, because it's already tracked`);
+                } else {
+                    console.log(`adding ${file} to change tracking`);
+                    addFileDependency(file);
+                }
+            }
 
-            //   // Add file dependencies if they're not already tracked
-            //   for (const file of compilationFileDependencies) {
-            //       if (compilationFileDependencies.has(file)) {
-            //           console.log(`not adding ${file} to change tracking, because it's already tracked`);
-            //       } else {
-            //           console.log(`adding ${file} to change tracking`);
-            //           addFileDependency(file);
-            //       }
-            //   }
-            callback();
         });
 
-        // compiler.hooks.emit.tap(this.pluginName, (compilation) => {
-
-        //   console.log('IOWatcherPlugin:', Object.keys(compilation.fileTimestamps))
 
 
-        //   let changedFiles = Object.keys(compilation.fileTimestamps)
-        //   .filter(watchfile => {
-        //     console.log(watchfile)
-        //       return (
-        //         (this.prevTimestamps[watchfile] || this.startTime) <
-        //         (compilation.fileTimestamps[watchfile] || Infinity)
-        //       );
-        //     }
-        //   );
+        compiler.hooks.done.tap(this.pluginName, (compilation) => {
 
-        //   console.log('IOWatcherPlugin watched files: ', changedFiles)
+            console.log('Starting [done] hook')
 
-        //   this.prevTimestamps = compilation.fileTimestamps;
-        // });
+            let watcher = chokidar.watch(this.path, {});
 
+
+            watcher
+                .on('add', (path) => {
+
+                    console.log(this.pluginName, 'File added: ', path);
+
+                    // filter those that are already added ?
+
+
+                    // compiler.run((err) => {
+                    //     if (err) throw err;
+
+                    //     console.log(this.pluginName, 'File added: ', path);
+                    //     watcher.close();
+                    // });
+                })
+                .on('unlink', (path) => {
+
+                    console.log(this.pluginName, `File ${path} has been removed`);
+
+                    // compiler.run((err) => {
+                    //     if (err) throw err;
+
+                    //     watcher.close();
+                    // });
+                })
+        })
     }
 
 }
