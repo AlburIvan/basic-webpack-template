@@ -7,6 +7,9 @@ const webpack = require('webpack');
 /** Simplifies creation of HTML files to serve your webpack bundles. - https://github.com/jantimon/html-webpack-plugin */
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+/** A plugin to Watch files / folders not under webpack watch. Accepts glob pattern. - https://github.com/sap9433/filewatcher-webpack-plugin */
+const FileWatcherPlugin = require("filewatcher-webpack-plugin");
+
 const IOWatcherPlugin = require('./plugins/IOWatcherPlugin')
 
 
@@ -17,7 +20,7 @@ let entries = {}
 
 jsEntries.forEach(entry => {
   let js = entry.replace(/(\.\w+)/g, '');
-  entries[js] =   `./src/${entry}`;
+  entries[js] = `./src/${entry}`;
 });
 
 
@@ -86,7 +89,12 @@ module.exports = {
 
       return plugin;
     }).concat([
-    new IOWatcherPlugin({}),
+    // new IOWatcherPlugin({}),
+    new FileWatcherPlugin({
+      watchFileRegex: ['./views', './src'],
+      awaitWriteFinish: true,
+      ignored: '/node_modules/'
+    }),
     new webpack.DefinePlugin({
       NODE_ENV: JSON.stringify('development'),
       PRODUCTION: JSON.stringify(false),

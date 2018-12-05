@@ -1,2 +1,2 @@
 
-console.log('Index');
+console.log('Indexs');
