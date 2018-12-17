@@ -31,6 +31,17 @@ module.exports = {
   // entry point for webpack to begin compiling
   entry: entries,
 
+  // Webpack will watch files and recompile whenever they change 
+  // if neccesary 
+  watch: true,
+
+  // Control options related to watching the files.
+  watchOptions: {
+    aggregateTimeout: 300,
+    poll: 1000,
+    ignored: /node_modules/
+  },
+
   // dev Server setup
   devServer: {
     port: 9000,
@@ -45,17 +56,11 @@ module.exports = {
     // To make live-reloading happen even when changes are made
     // to the static html pages in 'contentBase', add 
     // 'watchContentBase'
-    watchContentBase: true,
-
-    // Control options related to watching the files.
-    watchOptions: {
-      aggregateTimeout: 300,
-      poll: false,
-      ignored: /node_modules/
-    }
+    watchContentBase: true
   },
 
   // Here be modules
+  // https://webpack.js.org/loaders/
   module: {
     rules: [
       { 

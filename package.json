@@ -4,7 +4,7 @@
   "description": "This is a webpack template to handle Multi pages web apps, this should ease the pain when working with bundling assets & caching files",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --watch webpack.dev.js --exec \"webpack-dev-server --hot --inline --config webpack.dev.js --mode development\"",
+    "start": "nodemon --watch webpack.dev.js --exec \"webpack-dev-server --hot --inline --watch --config webpack.dev.js --mode development\"",
     "build": "webpack --config webpack.prod.js",
     "preview": "npm run build && http-server dist",
     "test": "echo test"

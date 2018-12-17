@@ -19,10 +19,17 @@ class IOWatcherPlugin {
         let fileDependencies = []
         let addFileDependency = void 0;
 
+        // compiler.compilation.tap(this.pluginName, ())
+
+        compiler.hooks.afterCompile.tap(this.pluginName, (compilation) => {
+            console.log('Starting [afterCompile] hook');
+        })
+
         compiler.hooks.afterEmit.tap(this.pluginName, (compilation) => {
             console.log('Starting [afterEmit] hook');
 
             let compilationFileDependencies = void 0;
+            // console.log(compilation.fileDependencies)
 
             if (Array.isArray(compilation.fileDependencies)) {
                 compilationFileDependencies = new Set(compilation.fileDependencies);
@@ -32,8 +39,9 @@ class IOWatcherPlugin {
                 addFileDependency = (file) => compilation.fileDependencies.add(file);
             }
 
+            
             // Add file dependencies if they're not already tracked
-            for (const file of fileDependencies) {
+            for (const file of compilationFileDependencies) {
                 if (compilationFileDependencies.has(file)) {
                     console.log(`not adding ${file} to change tracking, because it's already tracked`);
                 } else {
@@ -44,22 +52,28 @@ class IOWatcherPlugin {
 
         });
 
-
-
+        // see: 
+        // https://github.com/webpack/webpack-dev-server/issues/34
         compiler.hooks.done.tap(this.pluginName, (compilation) => {
 
             console.log('Starting [done] hook')
 
             let watcher = chokidar.watch(this.path, {});
 
-
             watcher
                 .on('add', (path) => {
 
                     console.log(this.pluginName, 'File added: ', path);
 
-                    // filter those that are already added ?
+                    let fileIsTracked = fileDependencies.includes(path);
 
+                    if (fileIsTracked) {
+                        console.log(`not adding ${path} to change tracking, because it's already tracked`);
+                    } else {
+                        console.log(`adding ${path} to change tracking`);
+                        addFileDependency(path);
+                    }
+                    // filter those that are already added ?
 
                     // compiler.run((err) => {
                     //     if (err) throw err;
@@ -79,6 +93,7 @@ class IOWatcherPlugin {
                     // });
                 })
         })
+
     }
 
 }
