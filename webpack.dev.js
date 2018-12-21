@@ -95,9 +95,7 @@ module.exports = {
 
       return plugin;
     }).concat([
-    new IOWatcherPlugin('./views', {
-
-    }),
+    // new IOWatcherPlugin('./views', {}),
     // new FileWatcherPlugin({
     //   watchFileRegex: ['./views', './src'],
     //   awaitWriteFinish: true,
